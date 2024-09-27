@@ -1,27 +1,32 @@
+require('dotenv').config() 
 const http = require("http");
 const express = require("express");
-const socketIO = require("socket.io");
+const {Server} = require("socket.io");
 const cors = require("cors");
-require('dotenv').config() 
 
 const app = express();
 
-app.use(cors());
-const server = http.createServer(app);
+// app.use(cors());
+// const server = http.createServer(app);
 
-
+const allUsers = [{}];
 
 app.get("/", (req,res) => {
     res.send("hell its working")
 })
 
-const io = socketIO(server);
-
-io.on("connection", async () => {
-    console.log("new connecton")
+const io = new Server(6001, {
+    origin: 'http://localhost:3000',
+    cors:true
 })
 
+io.on("connection",  (socket) => {
+    console.log("new connecton", socket.id)
+    socket.on("joined",({user})=>{
+        console.log(`${user} has joined`);
+        allUsers[socket.id] = user; 
+        socket.broadcast.emit("userJoined", {user:"Admin", message:`${allUsers[socket.id]} has joined`});
+    })
+})
 
-const port = 4500 || process.env.PORT;
-
-server.listen(port, () => console.log(`server running on PORT - ${port}`));
+const port = process.env.PORT || 4500;
