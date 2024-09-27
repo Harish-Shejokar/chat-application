@@ -12,8 +12,9 @@ const app = express();
 const allUsers = [{}];
 
 app.get("/", (req,res) => {
-    res.send("hell its working")
+    res.send("hello.. its working")
 })
+
 
 const io = new Server(6001, {
     origin: 'http://localhost:3000',
