@@ -22,11 +22,12 @@ const io = new Server(6001, {
 })
 
 io.on("connect",  (socket) => {
-    console.log("new connecton", socket.id)
+    const userSocketId = socket.id;
     socket.on("joined",({user})=>{
         console.log(`${user} has joined`);
         allUsers[socket.id] = user; 
-        socket.broadcast.emit("userJoined", {user:`${allUsers[socket.id]}`, message:`joined-Chat`, id:allUsers[socket.id]});
+        console.log("new connecton", userSocketId)
+        socket.broadcast.emit("userJoined", {user:`${allUsers[socket.id]}`, message:`joined-Chat`, id:userSocketId});
     })
 
     socket.on("disconnect", () => {
@@ -34,7 +35,7 @@ io.on("connect",  (socket) => {
     })
 
     socket.on("message", ({message,id}) => {
-        io.emit("sendMessage", {user : allUsers[id], message});
+        io.emit("sendMessage", {user : allUsers[id], message, id});
     })
 
 })
