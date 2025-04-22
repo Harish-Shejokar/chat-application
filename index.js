@@ -21,14 +21,21 @@ const io = new Server(6001, {
     cors:true
 })
 
+//chat-name space
+const chatNameSpace = io.of("/chat-");
+chatNameSpace.on("connection", (socket) => {
+    
+    console.log("###### chatNameSpace ######");
+})
 
-
+//default namespace
 io.on("connect", (socket) => {
-   
+    
     const totalUserCount = (totalUsers) => {
         console.log("=========totalUsers==========")
         io.emit("totalUsers", { totalUsers });
     }
+    // totalUserCount(liveUser);
 
     const userSocketId = socket.id;
     // console.log(allUsers.length, "total Users");
