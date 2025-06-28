@@ -3,8 +3,10 @@ const http = require("http");
 const express = require("express");
 const {Server} = require("socket.io");
 const cors = require("cors");
+const mysql = require("./config/mysql");
 
 const app = express();
+mysql();
 
 // app.use(cors());
 // const server = http.createServer(app);
@@ -22,42 +24,32 @@ const io = new Server(6001, {
 })
 
 //chat-name space
-const chatNameSpace = io.of("/chat-");
-chatNameSpace.on("connection", (socket) => {
-    
-    console.log("###### chatNameSpace ######");
+const chatNameSpace = io.of("/chat");
+   chatNameSpace.on("connection", (socket) => {
 })
 
 //default namespace
 io.on("connect", (socket) => {
     
     const totalUserCount = (totalUsers) => {
-        console.log("=========totalUsers==========")
         io.emit("totalUsers", { totalUsers });
     }
-    // totalUserCount(liveUser);
 
     const userSocketId = socket.id;
-    // console.log(allUsers.length, "total Users");
     socket.on("joined",({user})=>{
-        console.log(`${user} has joined`);
-        
         allUsers[socket.id] = user; 
         console.log("new connecton", userSocketId)
         socket.broadcast.emit("userJoined", {user:`${allUsers[socket.id]}`, message:`joined-Chat`, id:userSocketId});
-        // console.log(Object.keys(allUsers).length, allUsers, "total Users");
-        // totalUserCount(Object.keys(allUsers).length)
         io.emit("totalUsers", { totalUsers:Object.keys(allUsers).length });
     })
 
     socket.on("disconnect", () => {
         socket.broadcast.emit("leave", { user: "", message: `${allUsers[socket.id]} leave the chat` });
-        console.log(Object.keys(allUsers).length, "total Users");
         totalUserCount(Object.keys(allUsers).length)
     })
 
     socket.on("message", ({message,id}) => {
-        io.emit("sendMessage", {user : allUsers[id], message, id});
+        io.emit("sendMessage", {user : allUsers[id], message, id, singleTick:true});
     })
 
     console.log("============SocketIO Connected================");
